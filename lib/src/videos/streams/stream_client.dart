@@ -65,7 +65,8 @@ class StreamClient {
         'ytClients cannot be an empty list');
 
     videoId = VideoId.fromString(videoId);
-    final clients = ytClients ?? [YoutubeApiClient.androidSdkless];
+    final clients = ytClients ??
+        [YoutubeApiClient.androidVr, YoutubeApiClient.androidSdkless];
 
     if (_jsChallengeSolver != null && ytClients == null) {
       clients.add(YoutubeApiClient.tv);
