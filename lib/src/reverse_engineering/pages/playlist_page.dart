@@ -157,13 +157,22 @@ class _InitialData extends InitialData {
       ?.getT<String>('text')
       .parseInt();
 
-  late final String? continuationToken =
-      (videosContent ?? playlistVideosContent)
-          ?.firstWhereOrNull((e) => e['continuationItemRenderer'] != null)
-          ?.get('continuationItemRenderer')
-          ?.get('continuationEndpoint')
-          ?.get('continuationCommand')
-          ?.getT<String>('token');
+  String? get continuationToken {
+    final continuationEndpoint = (videosContent ?? playlistVideosContent)
+        ?.firstWhereOrNull((e) => e['continuationItemRenderer'] != null)
+        ?.get('continuationItemRenderer')
+        ?.get('continuationEndpoint');
+
+    return continuationEndpoint
+            ?.get('continuationCommand')
+            ?.getT<String>('token') ??
+        continuationEndpoint
+            ?.get('commandExecutorCommand')
+            ?.getList('commands')
+            ?.firstWhereOrNull((e) => e['continuationCommand'] != null)
+            ?.get('continuationCommand')
+            ?.getT<String>('token');
+  }
 
   List<JsonMap>? get playlistVideosContent =>
       root
@@ -237,22 +246,43 @@ class _Video {
           .parseRuns() ??
       '';
 
-  String get channelId =>
-      root
-          .get('ownerText')
-          ?.getList('runs')
-          ?.firstOrNull
-          ?.get('navigationEndpoint')
-          ?.get('browseEndpoint')
-          ?.getT<String>('browseId') ??
-      root
-          .get('shortBylineText')
-          ?.getList('runs')
-          ?.firstOrNull
-          ?.get('navigationEndpoint')
-          ?.get('browseEndpoint')
-          ?.getT<String>('browseId') ??
-      '';
+  String get channelId {
+    return root
+            .get('ownerText')
+            ?.getList('runs')
+            ?.firstOrNull
+            ?.get('navigationEndpoint')
+            ?.get('browseEndpoint')
+            ?.getT<String>('browseId') ??
+        root
+            .get('shortBylineText')
+            ?.getList('runs')
+            ?.firstOrNull
+            ?.get('navigationEndpoint')
+            ?.get('browseEndpoint')
+            ?.getT<String>('browseId') ??
+        root
+            .get('shortBylineText')
+            ?.getList('runs')
+            ?.firstOrNull
+            ?.get('navigationEndpoint')
+            ?.get('showDialogCommand')
+            ?.get('panelLoadingStrategy')
+            ?.get('inlineContent')
+            ?.get('dialogViewModel')
+            ?.get('customContent')
+            ?.get('listViewModel')
+            ?.getList('listItems')
+            ?.firstOrNull
+            ?.get('listItemViewModel')
+            ?.get('rendererContext')
+            ?.get('commandContext')
+            ?.get('onTap')
+            ?.get('innertubeCommand')
+            ?.get('browseEndpoint')
+            ?.getT<String>('browseId') ??
+        '';
+  }
 
   String get title => root.get('title')?.getList('runs')?.parseRuns() ?? '';
 

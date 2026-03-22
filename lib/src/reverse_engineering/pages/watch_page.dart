@@ -38,7 +38,9 @@ class WatchPage extends YoutubePage<WatchPageInitialData> {
         .querySelectorAll('script')
         .map((e) => e.attributes['src'])
         .nonNulls
-        .firstWhereOrNull((e) => e.contains('player_ias') && e.endsWith('.js'));
+        .firstWhereOrNull((e) =>
+            (e.contains('player_ias') || e.contains('player_es6')) &&
+            e.endsWith('.js'));
     if (url == null) {
       return null;
     }
@@ -261,5 +263,30 @@ class WatchPageInitialData extends InitialData {
       return likes.parseInt();
     }
     return null;
+  }
+
+  List<MusicData>? getMusicData() {
+    return root
+        .getList('engagementPanels')
+        ?.firstWhereOrNull((e) =>
+            e['engagementPanelSectionListRenderer'] != null &&
+            e['engagementPanelSectionListRenderer']['panelIdentifier'] ==
+                'engagement-panel-structured-description')
+        ?.get('engagementPanelSectionListRenderer')
+        ?.get('content')
+        ?.get('structuredDescriptionContentRenderer')
+        ?.getList('items')
+        ?.firstWhereOrNull((e) => e['horizontalCardListRenderer'] != null)
+        ?.get('horizontalCardListRenderer')
+        ?.getList('cards')
+        ?.map((e) => e.get('videoAttributeViewModel'))
+        .nonNulls
+        .map((e) => (
+              song: e.getT<String>('title'),
+              artist: e.getT<String>('subtitle'),
+              album: e.getJson<String>('secondarySubtitle/content'),
+              image: e.getJson<String>('image/sources/0/url')?.toUri()
+            ))
+        .toList();
   }
 }

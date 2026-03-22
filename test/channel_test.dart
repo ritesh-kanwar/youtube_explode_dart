@@ -1,6 +1,8 @@
 import 'package:test/test.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
+import 'skip_gh.dart';
+
 void main() {
   YoutubeExplode? yt;
   setUpAll(() {
@@ -53,7 +55,7 @@ void main() {
   test('Get metadata of a channel by a video', () async {
     final channel = await yt!.channels.getByVideo(VideoId('TW_yxPcodhk'));
     expect(channel.id.value, 'UCqKbtOLx4NCBh5KKMSmbX0g');
-  });
+  }, skip: skipGH);
 
   test('Get the videos of a youtube channel', () async {
     final videos = await yt!.channels
@@ -90,5 +92,12 @@ void main() {
         await yt!.channels.getUploadsFromPage('UC6biysICWOJ-C3P4Tyeggzg');
     final nextPage = await videos.nextPage();
     expect(nextPage!.length, greaterThanOrEqualTo(20));
+  });
+
+  test('Get shorts of a youtube channel from the uploads page', () async {
+    final shorts = await yt!.channels.getUploadsFromPage(
+        'UCMawD8L365TRdcqhQiTDLKA',
+        videoType: VideoType.shorts);
+    expect(shorts, isNotEmpty);
   });
 }
