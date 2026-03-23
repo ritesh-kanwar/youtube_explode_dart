@@ -24,7 +24,7 @@ class YoutubeHttpClient extends http.BaseClient {
 
   static const Map<String, String> defaultHeaders = {
     'user-agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.18 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
     'cookie': 'CONSENT=YES+cb',
     'accept':
         'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -353,6 +353,24 @@ class YoutubeHttpClient extends http.BaseClient {
         request.headers[key] = headers[key]!;
       }
     });
+
+    if (request.url.host.contains('googlevideo.com')) {
+      final clientMode = request.url.queryParameters['c'];
+      if (clientMode != null) {
+        if (clientMode == 'ANDROID' ||
+            clientMode == 'ANDROID_VR' ||
+            clientMode == 'ANDROID_MUSIC') {
+          request.headers['user-agent'] =
+              'com.google.android.youtube/20.10.38 (Linux; U; Android 11) gzip';
+        } else if (clientMode == 'IOS') {
+          request.headers['user-agent'] =
+              'com.google.ios.youtube/19.45.4 (iPhone16,2; U; CPU iOS 18_1_0 like Mac OS X;)';
+        } else if (clientMode == 'TVHTML5') {
+          request.headers['user-agent'] =
+              'Mozilla/5.0 (ChromiumStylePlatform) Cobalt/Version,gzip(gfe)';
+        }
+      }
+    }
 
     _logger.fine('Sending request: $request', null, StackTrace.current);
     _logger.finer('Request headers: ${request.headers}');
